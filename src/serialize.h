@@ -170,6 +170,7 @@ enum
     SER_NETWORK         = (1 << 0),
     SER_DISK            = (1 << 1),
     SER_GETHASH         = (1 << 2),
+    SER_POSMARKER       = (1 << 18)
 };
 
 #define READWRITE(obj)      (::SerReadWrite(s, (obj), nType, nVersion, ser_action))
@@ -1005,6 +1006,9 @@ public:
     size_t size() const {
         return nSize;
     }
+
+    int GetVersion() const { return nVersion; }
+    int GetType() const { return nType; }
 };
 
 template<typename Stream>

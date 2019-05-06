@@ -28,6 +28,12 @@ public:
     uint32_t nBits;
     uint32_t nNonce;
 
+    // ppcoin: A copy from CBlockIndex.nFlags from other clients.
+    int32_t nFlags;
+    // ppcoin: Used in CheckProofOfStake().
+    static const int32_t NORMAL_SERIALIZE_SIZE=80;
+    static const int32_t CURRENT_VERSION=3;
+
     CBlockHeader()
     {
         SetNull();
@@ -38,22 +44,26 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(this->nVersion);
-        nVersion = this->nVersion;
         READWRITE(hashPrevBlock);
         READWRITE(hashMerkleRoot);
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
+
+        // ppcoin: do not serialize nFlags when computing hash
+        if (!(s.GetType() & SER_GETHASH) && s.GetType() & SER_POSMARKER)
+            READWRITE(nFlags);
     }
 
     void SetNull()
     {
-        nVersion = 0;
+        nVersion = CURRENT_VERSION;
         hashPrevBlock.SetNull();
         hashMerkleRoot.SetNull();
         nTime = 0;
         nBits = 0;
         nNonce = 0;
+        nFlags = 0;
     }
 
     bool IsNull() const
@@ -75,6 +85,9 @@ class CBlock : public CBlockHeader
 public:
     // network and disk
     std::vector<CTransaction> vtx;
+
+    // ppcoin: block signature - signed by coin base txout[0]'s owner
+    std::vector<unsigned char> vchBlockSig;
 
     // memory only
     mutable CTxOut txoutMasternode; // masternode payment
@@ -98,6 +111,7 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(*(CBlockHeader*)this);
         READWRITE(vtx);
+        READWRITE(vchBlockSig);
     }
 
     void SetNull()
@@ -107,6 +121,7 @@ public:
         txoutMasternode = CTxOut();
         voutSuperblock.clear();
         fChecked = false;
+        vchBlockSig.clear();
     }
 
     CBlockHeader GetBlockHeader() const
@@ -121,9 +136,26 @@ public:
         return block;
     }
 
+    // ppcoin: two types of block: proof-of-work or proof-of-stake
+    bool IsProofOfStake() const
+    {
+        return (vtx.size() > 1 && vtx[1].IsCoinStake());
+    }
+
+    bool IsProofOfWork() const
+    {
+        return !IsProofOfStake();
+    }
+
+    std::pair<COutPoint, unsigned int> GetProofOfStake() const
+    {
+        return IsProofOfStake()? std::make_pair(vtx[1].vin[0].prevout, nTime) : std::make_pair(COutPoint(), (unsigned int)0);
+    }
+
+    unsigned int GetStakeEntropyBit() const;
+
     std::string ToString() const;
 };
-
 
 /** Describes a place in the block chain to another node such that if the
  * other node doesn't have the same branch, it can find a recent common trunk.

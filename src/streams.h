@@ -615,6 +615,8 @@ public:
             nReadPos++;
         }
     }
+    int GetVersion() const { return nVersion; }
+    int GetType() const { return nType; }
 };
 
 #endif // BITCOIN_STREAMS_H

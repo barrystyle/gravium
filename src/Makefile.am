@@ -81,6 +81,7 @@ BITCOIN_CORE_H = \
   base58.h \
   bip39.h \
   bip39_english.h \
+  blocksigner.h \
   bloom.h \
   cachemap.h \
   cachemultimap.h \
@@ -125,6 +126,7 @@ BITCOIN_CORE_H = \
   instantx.h \
   key.h \
   keepass.h \
+  kernel.h \
   keystore.h \
   dbwrapper.h \
   limitedmap.h \
@@ -286,6 +288,8 @@ libbitcoin_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libbitcoin_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_wallet_a_SOURCES = \
   keepass.cpp \
+  kernel.cpp \
+  blocksigner.cpp \
   privatesend-client.cpp \
   privatesend-util.cpp \
   wallet/crypter.cpp \

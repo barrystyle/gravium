@@ -96,8 +96,14 @@ public:
         consensus.BIP34Height = 1;
         consensus.BIP34Hash = uint256S("0x000007d91d1254d60e2dd1ae580383070a4ddffa4c64c2eeb4a2f9ecc0414343");
         consensus.powLimit = uint256S("00000fffff000000000000000000000000000000000000000000000000000000");
+        consensus.bnInitialHashTarget = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.nStakeTargetSpacing = 2.5 * 60;
+        consensus.nTargetSpacingWorkMax = 12 * consensus.nStakeTargetSpacing;
         consensus.nPowTargetTimespan = 16 * 60;    // every 16 blocks
         consensus.nPowTargetSpacing = 1 * 60;      // 60s spacing
+        consensus.nStakeMinAge = 60 * 60 * 24 * 2;
+        consensus.nStakeMaxAge = 60 * 60 * 24 * 365 * 65;
+        consensus.nModifierInterval = 3 * 60 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
